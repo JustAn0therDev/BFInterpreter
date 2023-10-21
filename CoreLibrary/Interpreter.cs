@@ -50,8 +50,6 @@ public class Interpreter
                     break;
                 case '[':
                 {
-                    // FOUND THE BUG!
-                    // The matching closing bracket for this should be considered
                     if (_pointerArray[_dataPointer] == 0)
                     {
                         var openingBracketsCount = 0;
