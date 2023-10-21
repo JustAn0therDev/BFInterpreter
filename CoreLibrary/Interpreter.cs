@@ -1,76 +1,114 @@
 ﻿namespace CoreLibrary;
 
 /// <summary>
-/// The interpreter class. For now, it's all static.
+/// The interpreter class.
 /// </summary>
 public class Interpreter
 {
-    private readonly char[] _validCommands = { '-', '+', '<', '>', '[', ']', ',', '.' };
+    private const ushort MemorySize = ushort.MaxValue;
 
-    private byte[] _pointerArray = new byte[30000];
+    private readonly byte[] _pointerArray = new byte[MemorySize];
 
-    private int _pointer;
+    private ushort _dataPointer;
 
+    private int _instructionPointer;
+    
     public Interpreter()
     {
         for (var i = 0; i < _pointerArray.Length; i++)
         {
             _pointerArray[i] = 0;
         }
+
+        _instructionPointer = 0;
     }
     
     public void Execute(string input)
     {
-        for (var i = 0; i < input.Length; i++)
+        while (_instructionPointer < input.Length)
         {
-            char ch = input[i];
-            
-            if (!_validCommands.Contains(ch))
-            {
-                continue;
-            }
-
-            switch (ch)
+            switch (input[_instructionPointer])
             {
                 case '>':
-                    _pointer++;
+                    // Wrap
+                    _dataPointer++;
                     break;
                 case '<':
-                    _pointer--;
+                    // Wrap
+                    _dataPointer--;
                     break;
                 case '+':
-                    _pointerArray[_pointer]++;
+                    // Wrap
+                    _pointerArray[_dataPointer]++;
                     break;
                 case '-':
-                    _pointerArray[_pointer]--;
+                    // Wrap
+                    _pointerArray[_dataPointer]--;
                     break;
                 case '.':
-                    Console.Write((char)_pointerArray[_pointer]);
+                    Console.Write((char)_pointerArray[_dataPointer]);
                     break;
                 case '[':
                 {
-                    if (_pointerArray[_pointer] == 0)
+                    // FOUND THE BUG!
+                    // The matching closing bracket for this should be considered
+                    if (_pointerArray[_dataPointer] == 0)
                     {
+                        var openingBracketsCount = 0;
+
                         do
                         {
-                            i++;
-                        } while (input[i] != ']' && i < input.Length);
-
-                        i++;
+                            _instructionPointer++;
+                            
+                            if (input[_instructionPointer] == '[')
+                            {
+                                openingBracketsCount++;
+                            }
+                            else if (input[_instructionPointer] == ']' && openingBracketsCount == 0)
+                            {
+                                break;
+                            }
+                            else if (input[_instructionPointer] == ']')
+                            {
+                                openingBracketsCount--;
+                            }
+                        }
+                        while (true);
                     }
                     break;
                 }
-
                 case ']':
-                    if (_pointerArray[_pointer] != 0)
+                {
+                    if (_pointerArray[_dataPointer] > 0)
                     {
+                        var closingBracketsCount = 0;
                         do
                         {
-                            i--;
-                        } while (input[i] != '[' && i > 0);
+                            _instructionPointer--;
+                            
+                            if (input[_instructionPointer] == ']')
+                            {
+                                closingBracketsCount++;
+                            }
+                            else if (input[_instructionPointer] == '[' && closingBracketsCount == 0)
+                            {
+                                break;
+                            }  
+                            else if (input[_instructionPointer] == '[')
+                            {
+                                closingBracketsCount--;
+                            }
+                            
+
+                        }
+                        while (true);
                     }
+                    
                     break;
+                }
             }
+            
+            _instructionPointer++;
         }
         
         Console.WriteLine();

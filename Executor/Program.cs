@@ -19,6 +19,18 @@ while (true)
         continue;
     }
 
+    input = input.Trim();
+
+    // It's a file.
+    if (input.EndsWith(".b"))
+    {
+        input = string.Join("", File.ReadAllLines(input));
+    }
+    else if (string.Equals(input, "exit", StringComparison.CurrentCultureIgnoreCase))
+    {
+        Environment.Exit(1);
+    }
+    
     Interpreter interpreter = new();
 
     interpreter.Execute(input);
