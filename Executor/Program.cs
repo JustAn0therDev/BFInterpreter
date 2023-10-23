@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using CoreLibrary;
+﻿using CoreLibrary;
 
 Console.WriteLine("Welcome to the Brainf**k Interpreter...");
 
