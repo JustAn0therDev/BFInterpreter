@@ -6,106 +6,98 @@
 public class Interpreter
 {
     private const ushort MemorySize = ushort.MaxValue;
-
     private readonly byte[] _pointerArray = new byte[MemorySize];
-
     private ushort _dataPointer;
-
     private int _instructionPointer;
+    private Dictionary<int, int> _matchingClosingBrackets = new();
+    private Dictionary<int, int> _matchingOpeningBrackets = new();
+    private string _input;
+    private readonly Dictionary<char, Action> _commandsToFunctions;
     
-    public Interpreter()
+    public Interpreter(string input)
     {
-        for (var i = 0; i < _pointerArray.Length; i++)
+        _commandsToFunctions = new()
+        {
+            { '+', IncrementValueAtDataPointer },
+            { '-', DecrementValueAtDataPointer },
+            { '>', MoveRightInPointerArray },
+            { '<', MoveLeftInPointerArray },
+            { '.', PrintValueAtDataPointer },
+            { '[', FindMatchingClosingBracket },
+            { ']', FindMatchingOpeningBracket }
+        };
+
+        int i;
+
+        for (i = 0; i < _pointerArray.Length; i++)
         {
             _pointerArray[i] = 0;
         }
 
         _instructionPointer = 0;
+
+        // Load the input file
+        _input = input;
+
+        i = 0;
+
+        Stack<int> stack = new();
+
+        for (; i < input.Length; i++) {
+            if (_input[i] == '[') {
+                stack.Push(i);
+            } else if (_input[i] == ']') {
+                int openingBracketsIndex = stack.Pop();
+                int closingBracketsIndex = i;
+
+                _matchingClosingBrackets.Add(openingBracketsIndex, closingBracketsIndex);
+                _matchingOpeningBrackets.Add(closingBracketsIndex, openingBracketsIndex);
+            }
+        }
+    }
+
+    private void IncrementValueAtDataPointer() {
+        _pointerArray[_dataPointer]++;
+    }
+
+    private void DecrementValueAtDataPointer() {
+        _pointerArray[_dataPointer]--;
+    }
+
+    private void MoveRightInPointerArray() {
+        _dataPointer++;
+    }
+
+    private void MoveLeftInPointerArray() {
+        _dataPointer--;
+    }
+
+    private void PrintValueAtDataPointer() {
+        Console.Write((char)_pointerArray[_dataPointer]);
+    }
+
+    private void FindMatchingClosingBracket() {
+        if (_pointerArray[_dataPointer] == 0)
+        {
+            // Have a dictionary for opening brackets
+            _instructionPointer = _matchingClosingBrackets[_instructionPointer];
+        }
+    }
+
+    private void FindMatchingOpeningBracket() {
+        if (_pointerArray[_dataPointer] > 0)
+        {
+            // Have a dictionary for closing brackets
+            _instructionPointer = _matchingOpeningBrackets[_instructionPointer];
+        }
     }
     
-    public void Execute(string input)
+    public void Execute()
     {
-        while (_instructionPointer < input.Length)
+        while (_instructionPointer < _input.Length)
         {
-            switch (input[_instructionPointer])
-            {
-                case '>':
-                    // Wrap
-                    _dataPointer++;
-                    break;
-                case '<':
-                    // Wrap
-                    _dataPointer--;
-                    break;
-                case '+':
-                    // Wrap
-                    _pointerArray[_dataPointer]++;
-                    break;
-                case '-':
-                    // Wrap
-                    _pointerArray[_dataPointer]--;
-                    break;
-                case '.':
-                    Console.Write((char)_pointerArray[_dataPointer]);
-                    break;
-                case '[':
-                {
-                    if (_pointerArray[_dataPointer] == 0)
-                    {
-                        var openingBracketsCount = 0;
+            _commandsToFunctions[_input[_instructionPointer]].Invoke();
 
-                        do
-                        {
-                            _instructionPointer++;
-                            
-                            if (input[_instructionPointer] == '[')
-                            {
-                                openingBracketsCount++;
-                            }
-                            else if (input[_instructionPointer] == ']' && openingBracketsCount == 0)
-                            {
-                                break;
-                            }
-                            else if (input[_instructionPointer] == ']')
-                            {
-                                openingBracketsCount--;
-                            }
-                        }
-                        while (true);
-                    }
-                    break;
-                }
-                case ']':
-                {
-                    if (_pointerArray[_dataPointer] > 0)
-                    {
-                        var closingBracketsCount = 0;
-                        do
-                        {
-                            _instructionPointer--;
-                            
-                            if (input[_instructionPointer] == ']')
-                            {
-                                closingBracketsCount++;
-                            }
-                            else if (input[_instructionPointer] == '[' && closingBracketsCount == 0)
-                            {
-                                break;
-                            }  
-                            else if (input[_instructionPointer] == '[')
-                            {
-                                closingBracketsCount--;
-                            }
-                            
-
-                        }
-                        while (true);
-                    }
-                    
-                    break;
-                }
-            }
-            
             _instructionPointer++;
         }
         

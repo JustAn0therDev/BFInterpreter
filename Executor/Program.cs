@@ -31,7 +31,7 @@ while (true)
         Environment.Exit(1);
     }
     
-    Interpreter interpreter = new();
+    Interpreter interpreter = new(input);
 
-    interpreter.Execute(input);
+    interpreter.Execute();
 }
