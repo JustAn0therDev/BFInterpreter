@@ -24,7 +24,7 @@ while (true)
     {
         input = string.Join("", File.ReadAllLines(input));
     }
-    else if (string.Equals(input, "exit", StringComparison.CurrentCultureIgnoreCase))
+    else if (string.Equals(input, "exit", StringComparison.OrdinalIgnoreCase))
     {
         Environment.Exit(1);
     }
