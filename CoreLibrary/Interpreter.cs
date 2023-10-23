@@ -9,9 +9,9 @@ public class Interpreter
     private readonly byte[] _pointerArray = new byte[MemorySize];
     private ushort _dataPointer;
     private int _instructionPointer;
-    private Dictionary<int, int> _matchingClosingBrackets = new();
-    private Dictionary<int, int> _matchingOpeningBrackets = new();
-    private string _input;
+    private readonly Dictionary<int, int> _matchingClosingBrackets = new();
+    private readonly Dictionary<int, int> _matchingOpeningBrackets = new();
+    private readonly string _input;
     private readonly Dictionary<char, Action> _commandsToFunctions;
     
     public Interpreter(string input)
