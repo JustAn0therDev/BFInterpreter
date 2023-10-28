@@ -23,27 +23,17 @@ public class Interpreter
             { '>', MoveRightInPointerArray },
             { '<', MoveLeftInPointerArray },
             { '.', PrintValueAtDataPointer },
+            { ',', ReadKeyAndSaveAtDataPointer }, // TODO: Figure out how to deal with this
             { '[', FindMatchingClosingBracket },
             { ']', FindMatchingOpeningBracket }
         };
 
-        int i;
-
-        for (i = 0; i < _pointerArray.Length; i++)
-        {
-            _pointerArray[i] = 0;
-        }
-
-        _instructionPointer = 0;
-
         // Load the input file
         _input = input;
 
-        i = 0;
-
         Stack<int> stack = new();
 
-        for (; i < input.Length; i++) {
+        for (int i = 0; i < _input.Length; i++) {
             if (_input[i] == '[') {
                 stack.Push(i);
             } else if (_input[i] == ']') {
@@ -76,6 +66,10 @@ public class Interpreter
         Console.Write((char)_pointerArray[_dataPointer]);
     }
 
+    private void ReadKeyAndSaveAtDataPointer() {
+        _pointerArray[_dataPointer] = (byte)Console.ReadKey().KeyChar;
+    }
+
     private void FindMatchingClosingBracket() {
         if (_pointerArray[_dataPointer] == 0)
         {
@@ -97,7 +91,6 @@ public class Interpreter
         while (_instructionPointer < _input.Length)
         {
             _commandsToFunctions[_input[_instructionPointer]].Invoke();
-
             _instructionPointer++;
         }
         
