@@ -31,5 +31,5 @@ while (true)
     
     Interpreter interpreter = new(input);
 
-    interpreter.Execute();
+    Console.WriteLine(interpreter.Execute());
 }

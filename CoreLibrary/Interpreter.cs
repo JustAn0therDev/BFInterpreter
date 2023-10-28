@@ -1,4 +1,6 @@
-﻿namespace CoreLibrary;
+﻿using System.Text;
+
+namespace CoreLibrary;
 
 /// <summary>
 /// The interpreter class.
@@ -13,9 +15,13 @@ public class Interpreter
     private readonly Dictionary<int, int> _matchingOpeningBrackets = new();
     private readonly string _input;
     private readonly Dictionary<char, Action> _commandsToFunctions;
+
+    private StringBuilder _output { get; set; }
     
     public Interpreter(string input)
     {
+        _output = new();
+
         _commandsToFunctions = new()
         {
             { '+', IncrementValueAtDataPointer },
@@ -63,7 +69,7 @@ public class Interpreter
     }
 
     private void PrintValueAtDataPointer() {
-        Console.Write((char)_pointerArray[_dataPointer]);
+        _output.Append((char)_pointerArray[_dataPointer]);
     }
 
     private void ReadKeyAndSaveAtDataPointer() {
@@ -86,7 +92,7 @@ public class Interpreter
         }
     }
     
-    public void Execute()
+    public string Execute()
     {
         while (_instructionPointer < _input.Length)
         {
@@ -94,6 +100,6 @@ public class Interpreter
             _instructionPointer++;
         }
         
-        Console.WriteLine();
+        return _output.ToString();
     }
 }
