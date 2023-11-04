@@ -1,4 +1,5 @@
 ﻿using CoreLibrary;
+using Executor;
 
 Console.WriteLine("Welcome to the Brainf**k Interpreter!");
 
@@ -9,7 +10,7 @@ Console.WriteLine("Memory usage is limited to 30000 bytes.");
 while (true)
 {
     Console.Write($"{DateTime.Now}: ");
-
+    
     string? input = Console.ReadLine();
 
     if (string.IsNullOrEmpty(input))
@@ -17,27 +18,12 @@ while (true)
         continue;
     }
 
-    var outputTo = input.StartsWith("stdout") ? OutputTo.Stdout : OutputTo.StringOutput;
-
-    string[] splitInput = input.Split(' ', StringSplitOptions.TrimEntries);
-
-    string argumentToInterpret = splitInput.Length > 1 ? splitInput[^1] : splitInput[0];
-
-    // It's a file.
-    if (argumentToInterpret.EndsWith(".b") || argumentToInterpret.EndsWith(".bf"))
-    {
-        argumentToInterpret = string.Join("", File.ReadAllLines(argumentToInterpret));
-    }
-    else if (string.Equals(argumentToInterpret, "exit", StringComparison.OrdinalIgnoreCase))
-    {
-        Environment.Exit(1);
-    }
-
-    Interpreter interpreter = new(outputTo, argumentToInterpret);
-
+    InputHandler inputHandler = new(input);
+    
+    Interpreter interpreter = new(inputHandler.OutputTo, inputHandler.ArgumentToInterpret);
     interpreter.Execute();
 
-    if (outputTo == OutputTo.StringOutput)
+    if (inputHandler.OutputTo == OutputTo.StringOutput)
     {
         Console.WriteLine(interpreter.GetStringOutput());
     }
