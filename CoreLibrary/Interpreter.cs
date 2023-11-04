@@ -15,16 +15,19 @@ public class Interpreter
     private readonly Dictionary<int, int> _matchingOpeningBrackets = new();
     private readonly string _input;
     private readonly Dictionary<char, Action> _commandsToFunctions;
-    private readonly StringBuilder _output;
-    private readonly InterpretAs _interpretAs;
+    private readonly StringBuilder? _output;
+    private readonly OutputTo _outputTo;
 
-    public Interpreter(InterpretAs interpretAs, string input)
+    public Interpreter(OutputTo outputTo, string input)
     {
-        _output = new StringBuilder();
+        _outputTo = outputTo;
 
-        _interpretAs = interpretAs;
+        if (_outputTo == OutputTo.StringOutput)
+        {
+            _output = new StringBuilder();
+        }
 
-        Action outputFunction = _interpretAs == InterpretAs.StringOutput
+        Action outputFunction = _outputTo == OutputTo.StringOutput
             ? AddValueAtDataPointerToStringBuilderOutput
             : PrintValueAtDataPointer;
 
@@ -89,7 +92,7 @@ public class Interpreter
 
     private void AddValueAtDataPointerToStringBuilderOutput()
     {
-        _output.Append((char) _pointerArray[_dataPointer]);
+        _output!.Append((char) _pointerArray[_dataPointer]);
     }
 
     private void ReadKeyAndSaveAtDataPointer()
@@ -124,13 +127,13 @@ public class Interpreter
 
     public string GetStringOutput()
     {
-        if (_interpretAs == InterpretAs.Stdout)
+        if (_outputTo == OutputTo.Stdout)
         {
             throw new NotSupportedException("Interpreter object was created to output results to stdout." +
                                             "To have a string representing the final result, please call this class' " +
                                             "constructor with the correct arguments.");
         }
 
-        return _output.ToString();
+        return _output!.ToString();
     }
 }

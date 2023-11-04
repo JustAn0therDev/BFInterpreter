@@ -17,21 +17,14 @@ while (true)
         continue;
     }
 
-    input = input.Trim();
+    var outputTo = input.StartsWith("stdout") ? OutputTo.Stdout : OutputTo.StringOutput;
 
-    var interpretAs = InterpretAs.StringOutput;
-
-    if (input.StartsWith("stdout"))
-    {
-        interpretAs = InterpretAs.Stdout;
-    }
-
-    string[] splitInput = input.Split(' ');
+    string[] splitInput = input.Split(' ', StringSplitOptions.TrimEntries);
 
     string argumentToInterpret = splitInput.Length > 1 ? splitInput[^1] : splitInput[0];
 
     // It's a file.
-    if (argumentToInterpret.EndsWith(".b"))
+    if (argumentToInterpret.EndsWith(".b") || argumentToInterpret.EndsWith(".bf"))
     {
         argumentToInterpret = string.Join("", File.ReadAllLines(argumentToInterpret));
     }
@@ -39,12 +32,12 @@ while (true)
     {
         Environment.Exit(1);
     }
-    
-    Interpreter interpreter = new(interpretAs, argumentToInterpret);
+
+    Interpreter interpreter = new(outputTo, argumentToInterpret);
 
     interpreter.Execute();
 
-    if (interpretAs == InterpretAs.StringOutput)
+    if (outputTo == OutputTo.StringOutput)
     {
         Console.WriteLine(interpreter.GetStringOutput());
     }

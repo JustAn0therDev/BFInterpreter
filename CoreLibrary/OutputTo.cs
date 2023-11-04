@@ -1,6 +1,6 @@
 namespace CoreLibrary;
 
-public enum InterpretAs
+public enum OutputTo
 {
     StringOutput,
     Stdout
