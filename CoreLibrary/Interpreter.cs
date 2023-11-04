@@ -15,23 +15,29 @@ public class Interpreter
     private readonly Dictionary<int, int> _matchingOpeningBrackets = new();
     private readonly string _input;
     private readonly Dictionary<char, Action> _commandsToFunctions;
+    private readonly StringBuilder _output;
+    private readonly InterpretAs _interpretAs;
 
-    private StringBuilder _output { get; set; }
-    
-    public Interpreter(string input)
+    public Interpreter(InterpretAs interpretAs, string input)
     {
-        _output = new();
+        _output = new StringBuilder();
 
-        _commandsToFunctions = new()
+        _interpretAs = interpretAs;
+
+        Action outputFunction = _interpretAs == InterpretAs.StringOutput
+            ? AddValueAtDataPointerToStringBuilderOutput
+            : PrintValueAtDataPointer;
+
+        _commandsToFunctions = new Dictionary<char, Action>
         {
-            { '+', IncrementValueAtDataPointer },
-            { '-', DecrementValueAtDataPointer },
-            { '>', MoveRightInPointerArray },
-            { '<', MoveLeftInPointerArray },
-            { '.', PrintValueAtDataPointer },
-            { ',', ReadKeyAndSaveAtDataPointer }, // TODO: Figure out how to deal with this
-            { '[', FindMatchingClosingBracket },
-            { ']', FindMatchingOpeningBracket }
+            {'+', IncrementValueAtDataPointer},
+            {'-', DecrementValueAtDataPointer},
+            {'>', MoveRightInPointerArray},
+            {'<', MoveLeftInPointerArray},
+            {'.', outputFunction},
+            {',', ReadKeyAndSaveAtDataPointer},
+            {'[', FindMatchingClosingBracket},
+            {']', FindMatchingOpeningBracket}
         };
 
         // Load the input file
@@ -39,10 +45,14 @@ public class Interpreter
 
         Stack<int> stack = new();
 
-        for (int i = 0; i < _input.Length; i++) {
-            if (_input[i] == '[') {
+        for (var i = 0; i < _input.Length; i++)
+        {
+            if (_input[i] == '[')
+            {
                 stack.Push(i);
-            } else if (_input[i] == ']') {
+            }
+            else if (_input[i] == ']')
+            {
                 int openingBracketsIndex = stack.Pop();
                 int closingBracketsIndex = i;
 
@@ -52,54 +62,75 @@ public class Interpreter
         }
     }
 
-    private void IncrementValueAtDataPointer() {
+    private void IncrementValueAtDataPointer()
+    {
         _pointerArray[_dataPointer]++;
     }
 
-    private void DecrementValueAtDataPointer() {
+    private void DecrementValueAtDataPointer()
+    {
         _pointerArray[_dataPointer]--;
     }
 
-    private void MoveRightInPointerArray() {
+    private void MoveRightInPointerArray()
+    {
         _dataPointer++;
     }
 
-    private void MoveLeftInPointerArray() {
+    private void MoveLeftInPointerArray()
+    {
         _dataPointer--;
     }
 
-    private void PrintValueAtDataPointer() {
-        _output.Append((char)_pointerArray[_dataPointer]);
+    private void PrintValueAtDataPointer()
+    {
+        Console.Write((char) _pointerArray[_dataPointer]);
     }
 
-    private void ReadKeyAndSaveAtDataPointer() {
-        _pointerArray[_dataPointer] = (byte)Console.ReadKey().KeyChar;
+    private void AddValueAtDataPointerToStringBuilderOutput()
+    {
+        _output.Append((char) _pointerArray[_dataPointer]);
     }
 
-    private void FindMatchingClosingBracket() {
+    private void ReadKeyAndSaveAtDataPointer()
+    {
+        _pointerArray[_dataPointer] = (byte) Console.ReadKey().KeyChar;
+    }
+
+    private void FindMatchingClosingBracket()
+    {
         if (_pointerArray[_dataPointer] == 0)
         {
-            // Have a dictionary for opening brackets
             _instructionPointer = _matchingClosingBrackets[_instructionPointer];
         }
     }
 
-    private void FindMatchingOpeningBracket() {
+    private void FindMatchingOpeningBracket()
+    {
         if (_pointerArray[_dataPointer] > 0)
         {
-            // Have a dictionary for closing brackets
             _instructionPointer = _matchingOpeningBrackets[_instructionPointer];
         }
     }
-    
-    public string Execute()
+
+    public void Execute()
     {
         while (_instructionPointer < _input.Length)
         {
             _commandsToFunctions[_input[_instructionPointer]].Invoke();
             _instructionPointer++;
         }
-        
+    }
+
+    public string GetStringOutput()
+    {
+        if (_interpretAs == InterpretAs.Stdout)
+        {
+            throw new NotSupportedException("Interpreter object was created to output results to stdout." +
+                                            "To have a string representing the final result, please call this class' " +
+                                            "constructor with the correct arguments.");
+        }
+
         return _output.ToString();
     }
 }

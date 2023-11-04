@@ -1,9 +1,9 @@
 ﻿using CoreLibrary;
 
-Console.WriteLine("Welcome to the Brainf**k Interpreter...");
+Console.WriteLine("Welcome to the Brainf**k Interpreter!");
 
 Console.WriteLine("Please note that: ");
-Console.WriteLine("Any invalid command will be ignored.");
+Console.WriteLine("Any invalid command will be ignored; and");
 Console.WriteLine("Memory usage is limited to 30000 bytes.");
 
 while (true)
@@ -19,17 +19,33 @@ while (true)
 
     input = input.Trim();
 
-    // It's a file.
-    if (input.EndsWith(".b"))
+    var interpretAs = InterpretAs.StringOutput;
+
+    if (input.StartsWith("stdout"))
     {
-        input = string.Join("", File.ReadAllLines(input));
+        interpretAs = InterpretAs.Stdout;
     }
-    else if (string.Equals(input, "exit", StringComparison.OrdinalIgnoreCase))
+
+    string[] splitInput = input.Split(' ');
+
+    string argumentToInterpret = splitInput.Length > 1 ? splitInput[^1] : splitInput[0];
+
+    // It's a file.
+    if (argumentToInterpret.EndsWith(".b"))
+    {
+        argumentToInterpret = string.Join("", File.ReadAllLines(argumentToInterpret));
+    }
+    else if (string.Equals(argumentToInterpret, "exit", StringComparison.OrdinalIgnoreCase))
     {
         Environment.Exit(1);
     }
     
-    Interpreter interpreter = new(input);
+    Interpreter interpreter = new(interpretAs, argumentToInterpret);
 
-    Console.WriteLine(interpreter.Execute());
+    interpreter.Execute();
+
+    if (interpretAs == InterpretAs.StringOutput)
+    {
+        Console.WriteLine(interpreter.GetStringOutput());
+    }
 }
