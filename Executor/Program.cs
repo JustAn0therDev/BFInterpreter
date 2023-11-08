@@ -17,7 +17,7 @@ while (true)
     {
         continue;
     }
-
+    
     InputHandler inputHandler = new(input);
     
     Interpreter interpreter = new(inputHandler.OutputTo, inputHandler.ArgumentToInterpret);
