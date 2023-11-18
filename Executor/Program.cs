@@ -14,7 +14,7 @@ while (true)
 {
     try 
     {
-        Console.Write($"{DateTime.Now.ToString("hh:mm:ss")}: ");
+        Console.Write($"{DateTime.Now:hh:mm:ss}: ");
         
         string? input = Console.ReadLine();
 

@@ -86,17 +86,17 @@ public class Interpreter
 
     private void PrintValueAtDataPointer()
     {
-        Console.Write((char) _pointerArray[_dataPointer]);
+        Console.Write((char)_pointerArray[_dataPointer]);
     }
 
     private void AddValueAtDataPointerToStringBuilderOutput()
     {
-        _output!.Append((char) _pointerArray[_dataPointer]);
+        _output!.Append((char)_pointerArray[_dataPointer]);
     }
 
     private void ReadKeyAndSaveAtDataPointer()
     {
-        _pointerArray[_dataPointer] = (byte) Console.ReadKey().KeyChar;
+        _pointerArray[_dataPointer] = (byte)Console.ReadKey().KeyChar;
     }
 
     private void FindMatchingClosingBracket()
