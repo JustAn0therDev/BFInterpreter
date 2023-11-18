@@ -43,7 +43,6 @@ public class Interpreter
             {']', FindMatchingOpeningBracket}
         };
 
-        // Load the input file
         _input = input;
 
         Stack<int> stack = new();
@@ -129,9 +128,10 @@ public class Interpreter
     {
         if (_outputTo == OutputTo.Stdout)
         {
-            throw new NotSupportedException("Interpreter object was created to output results to stdout." +
-                                            "To have a string representing the final result, please call this class' " +
-                                            "constructor with the correct arguments.");
+            throw new NotSupportedException(
+            "Interpreter object was created to output results to stdout." +
+            "To have a string representing the final result, please call this class' " +
+            "constructor with the correct arguments.");
         }
 
         return _output!.ToString();

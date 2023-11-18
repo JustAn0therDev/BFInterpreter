@@ -36,6 +36,11 @@ public class InputHandler
     {
         if (argumentToInterpret.EndsWith(".b") || argumentToInterpret.EndsWith(".bf"))
         {
+            if (!File.Exists(argumentToInterpret)) 
+            {
+                throw new FileNotFoundException($"The referenced file '{argumentToInterpret}' couldn't be found.");
+            }
+
             ArgumentToInterpret = string.Join("", File.ReadAllLines(argumentToInterpret));
             return;
         }
